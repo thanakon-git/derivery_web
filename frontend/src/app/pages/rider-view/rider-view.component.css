@@ -1,0 +1,4 @@
+/* Mobile responsive styling for rider */
+:host {
+  display: block;
+}

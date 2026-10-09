@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: lunchbox-delivery-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.0.0
+      - key: DB_SSL
+        value: "true"
+      - key: MYSQL_URL
+        sync: false # Set this in Render dashboard with your Aiven MySQL URL

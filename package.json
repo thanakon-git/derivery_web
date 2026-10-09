@@ -1,0 +1,15 @@
+{
+  "name": "lunchbox-smart-delivery-system",
+  "version": "1.0.0",
+  "description": "Smart Lunchbox Delivery & Rider Route Optimization System for MSU Area",
+  "scripts": {
+    "dev": "concurrently \"npm.cmd --prefix backend run dev\" \"npm.cmd --prefix frontend start\"",
+    "dev:backend": "npm.cmd --prefix backend run dev",
+    "dev:frontend": "npm.cmd --prefix frontend start",
+    "build:backend": "npm.cmd --prefix backend run build",
+    "build:frontend": "npm.cmd --prefix frontend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

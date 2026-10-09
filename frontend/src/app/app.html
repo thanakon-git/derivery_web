@@ -1,0 +1,147 @@
+<div class="min-h-screen flex flex-col font-sans transition-colors duration-200">
+  <!-- Windows 95 Top Window Title Bar (Shows when in Retro mode) -->
+  <div class="win95-titlebar">
+    <div class="flex items-center gap-2">
+      <span class="text-sm">🍱</span>
+      <span>DeliveryOS 95 - [ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง v1.0 (MSU Area)]</span>
+    </div>
+    <div class="win95-title-controls">
+      <button class="win95-title-btn" title="Minimize">_</button>
+      <button class="win95-title-btn" title="Maximize">口</button>
+      <button class="win95-title-btn" title="Close" (click)="toggleTheme()">✕</button>
+    </div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Brand / Logo -->
+        <a routerLink="/" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 text-xl font-bold">
+            🍱
+          </div>
+          <div>
+            <div class="font-black text-slate-900 text-base leading-tight tracking-tight flex items-center gap-1.5">
+              <span>ข้าวกล่องเดลิเวอรี</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-bold">ส่งด่วนมื้อเที่ยง</span>
+            </div>
+            <div class="text-[11px] text-slate-500 font-medium">
+              ม.มหาสารคาม (มมส. ขามเรียง) &bull; จัดส่งใน 1 ชม. (ก่อน 12:30 น.)
+            </div>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200/80">
+          <a 
+            routerLink="/" 
+            routerLinkActive="bg-white text-orange-600 shadow-xs" 
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+            🗺️ จัดเส้นทาง & แผนที่
+          </a>
+
+          <a 
+            routerLink="/orders" 
+            routerLinkActive="bg-white text-orange-600 shadow-xs" 
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+            📦 จัดการออเดอร์
+          </a>
+
+          <a 
+            routerLink="/customers" 
+            routerLinkActive="bg-white text-orange-600 shadow-xs" 
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+            👥 ฐานข้อมูลลูกค้า
+          </a>
+
+          <a 
+            routerLink="/rider" 
+            routerLinkActive="bg-white text-orange-600 shadow-xs" 
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+            📱 หน้าจอไรเดอร์
+          </a>
+        </nav>
+
+        <!-- Right Quick Controls (Theme Toggle + Mode) -->
+        <div class="flex items-center gap-2">
+          <!-- Theme Switcher Button -->
+          <button 
+            type="button"
+            (click)="toggleTheme()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border"
+            [class.bg-slate-200]="themeService.currentTheme() === 'retro'"
+            [class.text-slate-900]="themeService.currentTheme() === 'retro'"
+            [class.border-slate-400]="themeService.currentTheme() === 'retro'"
+            [class.bg-amber-100]="themeService.currentTheme() === 'modern'"
+            [class.text-amber-900]="themeService.currentTheme() === 'modern'"
+            [class.border-amber-300]="themeService.currentTheme() === 'modern'">
+            <span *ngIf="themeService.currentTheme() === 'retro'">💾 Windows 95</span>
+            <span *ngIf="themeService.currentTheme() === 'modern'">✨ Modern Flat</span>
+            <span class="text-[10px] opacity-75">(คลิกสลับ)</span>
+          </button>
+
+          <a 
+            routerLink="/rider" 
+            class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1">
+            <span>🛵</span>
+            <span class="hidden sm:inline">โหมดไรเดอร์</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Bar -->
+      <div class="md:hidden flex items-center justify-around py-2 border-t border-slate-100 text-xs font-bold">
+        <a routerLink="/" routerLinkActive="text-orange-600 font-black" [routerLinkActiveOptions]="{ exact: true }" class="py-1 px-2 text-slate-600">
+          🗺️ แผนที่
+        </a>
+        <a routerLink="/orders" routerLinkActive="text-orange-600 font-black" class="py-1 px-2 text-slate-600">
+          📦 ออเดอร์
+        </a>
+        <a routerLink="/customers" routerLinkActive="text-orange-600 font-black" class="py-1 px-2 text-slate-600">
+          👥 ลูกค้า
+        </a>
+        <a routerLink="/rider" routerLinkActive="text-orange-600 font-black" class="py-1 px-2 text-slate-600">
+          🛵 ไรเดอร์
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Windows 95 Status Bar (Shows in Retro Mode) -->
+  <div class="win95-statusbar hidden">
+    <div class="win95-status-panel flex-1">
+      STATUS: READY &bull; รอบส่งอาหาร 11:30 น. (เส้นตาย 12:30 น.)
+    </div>
+    <div class="win95-status-panel">
+      VRP SOLVER: ONLINE
+    </div>
+    <div class="win95-status-panel">
+      MSU KHAM RIANG (3KM RADIUS)
+    </div>
+    <div class="win95-status-panel">
+      ⏰ 11:30 AM
+    </div>
+  </div>
+
+  <!-- Standard Footer (Shows in Modern Mode) -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="font-bold text-slate-700">
+        🍱 ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (ม.มหาสารคาม)
+      </div>
+      <div>
+        ระบบจัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ (Cap &le; 3 ออเดอร์/คน &bull; ควบคุมต้นทุน &bull; ประหยัดน้ำมัน)
+      </div>
+      <button (click)="toggleTheme()" class="text-xs text-blue-600 hover:underline">
+        {{ themeService.currentTheme() === 'retro' ? 'สลับเป็น Modern Theme' : 'สลับเป็น Windows 95 Retro' }}
+      </button>
+    </div>
+  </footer>
+</div>

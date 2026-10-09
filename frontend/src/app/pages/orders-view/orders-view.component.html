@@ -1,0 +1,174 @@
+<div class="space-y-6">
+  <!-- Header Bar -->
+  <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+        📦 จัดการออเดอร์ข้าวกล่อง
+      </h1>
+      <p class="text-xs text-slate-500 mt-1">
+        จำลองคำสั่งซื้อ 20-30 รายการช่วง 10:00 น. หรือเพิ่ม/ลบรายการด้วยตนเอง
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center gap-2">
+      <button 
+        (click)="isAdding.set(true)"
+        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+        ➕ เพิ่มออเดอร์ใหม่
+      </button>
+
+      <button 
+        (click)="simulateOrders(25)"
+        [disabled]="isLoading()"
+        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition disabled:opacity-50">
+        🍱 จำลอง 25 ออเดอร์ (มื้อเที่ยง)
+      </button>
+
+      <button 
+        (click)="clearOrders()"
+        [disabled]="isLoading() || orders().length === 0"
+        class="px-3.5 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs font-medium rounded-xl transition">
+        🗑️ ล้างทั้งหมด
+      </button>
+
+      <a 
+        routerLink="/"
+        class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5">
+        🗺️ ไปจัดเส้นทาง &rarr;
+      </a>
+    </div>
+  </div>
+
+  <!-- Summary Stats Bar -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-semibold text-slate-400">จำนวนออเดอร์</div>
+      <div class="text-2xl font-black text-slate-900 mt-1">{{ orders().length }} รายการ</div>
+    </div>
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-semibold text-slate-400">ข้าวกล่องทั้งหมด</div>
+      <div class="text-2xl font-black text-orange-600 mt-1">{{ getTotalBoxes() }} กล่อง</div>
+    </div>
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-semibold text-slate-400">มูลค่ายอดขายรวม</div>
+      <div class="text-2xl font-black text-emerald-600 mt-1">฿{{ getTotalRevenue() | number }}</div>
+    </div>
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-semibold text-slate-400">เวลาเริ่มออกส่ง</div>
+      <div class="text-2xl font-black text-indigo-600 mt-1">11:30 น.</div>
+    </div>
+  </div>
+
+  <!-- Add Order Modal -->
+  <div *ngIf="isAdding()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-bold text-lg text-slate-900">เพิ่มออเดอร์ใหม่</h3>
+        <button (click)="isAdding.set(false)" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">เลือกลูกค้า (หอพัก/คณะรอบ มมส.)</label>
+          <select [(ngModel)]="selectedCustomerId" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-orange-500">
+            <option *ngFor="let c of customers()" [value]="c.id">
+              {{ c.name }} - {{ c.address }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">จำนวนข้าวกล่อง (1-3 กล่องตามเงื่อนไข)</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              *ngFor="let b of [1, 2, 3]"
+              type="button"
+              (click)="newBoxCount = b"
+              [class.bg-orange-600]="newBoxCount === b"
+              [class.text-white]="newBoxCount === b"
+              [class.bg-slate-100]="newBoxCount !== b"
+              [class.text-slate-800]="newBoxCount !== b"
+              class="py-2.5 rounded-xl font-bold transition">
+              {{ b }} กล่อง
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1">ราคา 65 บาท/กล่อง &bull; ต้นทุน 40 บาท/กล่อง</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t">
+        <button (click)="isAdding.set(false)" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-bold text-xs">
+          ยกเลิก
+        </button>
+        <button (click)="addOrder()" class="flex-1 py-2.5 rounded-xl bg-orange-600 text-white font-bold text-xs hover:bg-orange-700">
+          บันทึกออเดอร์
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <tr>
+            <th class="p-4">รหัสออเดอร์</th>
+            <th class="p-4">ลูกค้า</th>
+            <th class="p-4">ที่อยู่จัดส่ง (มมส.)</th>
+            <th class="p-4 text-center">จำนวนกล่อง</th>
+            <th class="p-4 text-right">ยอดเงิน</th>
+            <th class="p-4 text-center">สถานะ</th>
+            <th class="p-4 text-center">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <tr *ngFor="let order of orders()" class="hover:bg-slate-50/80 transition">
+            <td class="p-4 font-mono font-bold text-orange-600">{{ order.orderNumber }}</td>
+            <td class="p-4">
+              <div class="font-bold text-slate-900">{{ order.customerName }}</div>
+              <div class="text-xs text-slate-400">📞 {{ order.customerPhone }}</div>
+            </td>
+            <td class="p-4 text-xs max-w-xs">{{ order.address }}</td>
+            <td class="p-4 text-center">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black bg-orange-100 text-orange-800">
+                🍱 {{ order.boxCount }} กล่อง
+              </span>
+            </td>
+            <td class="p-4 text-right font-bold text-slate-900">
+              ฿{{ order.boxCount * 65 }}
+            </td>
+            <td class="p-4 text-center">
+              <span 
+                [class.bg-amber-100]="order.status === 'PENDING'"
+                [class.text-amber-800]="order.status === 'PENDING'"
+                [class.bg-blue-100]="order.status === 'ASSIGNED'"
+                [class.text-blue-800]="order.status === 'ASSIGNED'"
+                [class.bg-purple-100]="order.status === 'DELIVERING'"
+                [class.text-purple-800]="order.status === 'DELIVERING'"
+                [class.bg-emerald-100]="order.status === 'DELIVERED'"
+                [class.text-emerald-800]="order.status === 'DELIVERED'"
+                class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                {{ order.status === 'PENDING' ? 'รอกำหนดสายส่ง' : order.status === 'ASSIGNED' ? 'จัดสายแล้ว' : order.status === 'DELIVERING' ? 'กำลังส่ง' : 'ส่งสำเร็จ' }}
+              </span>
+            </td>
+            <td class="p-4 text-center">
+              <button 
+                (click)="deleteOrder(order.id)"
+                class="text-xs text-red-500 hover:text-red-700 hover:underline">
+                ลบ
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="orders().length === 0">
+            <td colspan="7" class="p-8 text-center text-slate-400">
+              ไม่มีข้อมูลออเดอร์ กรุณากด "จำลอง 25 ออเดอร์" หรือเพิ่มออเดอร์ใหม่
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,309 @@
+<div class="space-y-6">
+  <!-- Top Control Bar -->
+  <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+            ⏰ รอบส่งด่วนมื้อเที่ยง
+          </span>
+          <span class="text-xs text-slate-500">
+            ออกส่ง 11:30 น. &bull; ต้องถึงก่อน 12:30 น. (กฎ 1 ชม.)
+          </span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 mt-1 flex items-center gap-2">
+          <span>🗺️ จัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ</span>
+        </h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          ระบบจัดกลุ่มพิกัดรอบ ม.มหาสารคาม (มมส.) ไม่ให้วิ่งไขว้ฝั่งเมือง พร้อมคำนวณต้นทุน-กำไรอัตโนมัติ
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <select 
+          [(ngModel)]="selectedStrategy" 
+          (change)="optimizeRoutes()"
+          [disabled]="isLoading() || orderCount() === 0"
+          class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-500 outline-none">
+          <option value="SMART_CLUSTER">🌟 แบ่งโซนตามมุมและระยะทาง (แนะนำ)</option>
+          <option value="MIN_RIDERS">💰 อัดเต็ม 3 ออเดอร์/คัน (ประหยัดไรเดอร์)</option>
+          <option value="FASTEST_DELIVERY">⚡ กระจายงานเร็วสุด (ส่งถึงไวที่สุด)</option>
+        </select>
+
+        <button 
+          (click)="optimizeRoutes()"
+          [disabled]="isLoading() || orderCount() === 0"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white text-sm font-semibold rounded-xl shadow-sm transition disabled:opacity-50">
+          <svg *ngIf="isLoading()" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span *ngIf="!isLoading()">⚡ คำนวณเส้นทางใหม่</span>
+          <span *ngIf="isLoading()">กำลังคิดเส้นทาง...</span>
+        </button>
+
+        <button 
+          (click)="simulateLunchRush()"
+          [disabled]="isLoading()"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-sm font-semibold rounded-xl transition">
+          🍱 จำลองออเดอร์มื้อเที่ยง (25 รายการ)
+        </button>
+
+        <button 
+          (click)="clearAll()"
+          [disabled]="isLoading() || orderCount() === 0"
+          class="inline-flex items-center gap-1 px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-sm font-medium rounded-xl transition">
+          🗑️ ล้าง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial & Operations KPI Overview (ตามที่เจ้าของร้านต้องการในเอกสาร) -->
+  <div *ngIf="plan() as p" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+    <!-- Card 1: Orders & Boxes -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">ออเดอร์ / ข้าวกล่อง</div>
+      <div class="text-xl font-black text-slate-900 mt-1">
+        {{ p.totalOrders }} <span class="text-xs font-normal text-slate-500">ออเดอร์</span>
+      </div>
+      <div class="text-xs font-bold text-orange-600 mt-0.5">รวม {{ p.totalBoxes }} กล่อง</div>
+    </div>
+
+    <!-- Card 2: Riders Used -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">ไรเดอร์ที่ต้องเรียก</div>
+      <div class="text-xl font-black text-blue-600 mt-1">
+        {{ p.totalRidersUsed }} <span class="text-xs font-normal text-slate-500">คัน</span>
+      </div>
+      <div class="text-xs text-slate-500 mt-0.5">ไม่เกิน 3 ออเดอร์/คน</div>
+    </div>
+
+    <!-- Card 3: Total Revenue -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">ยอดขายรวม (65฿/กล่อง)</div>
+      <div class="text-xl font-black text-slate-900 mt-1">
+        ฿{{ p.totalRevenue | number }}
+      </div>
+      <div class="text-xs text-slate-400 mt-0.5">{{ p.totalBoxes }} × 65 บาท</div>
+    </div>
+
+    <!-- Card 4: Food Cost -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">ต้นทุนค่าอาหาร (40฿)</div>
+      <div class="text-xl font-black text-slate-700 mt-1">
+        ฿{{ p.totalFoodCost | number }}
+      </div>
+      <div class="text-xs text-slate-400 mt-0.5">{{ p.totalBoxes }} × 40 บาท</div>
+    </div>
+
+    <!-- Card 5: Rider Delivery Cost -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">ค่าจ้างไรเดอร์รวม</div>
+      <div class="text-xl font-black text-rose-600 mt-1">
+        ฿{{ p.totalRiderCost | number:'1.2-2' }}
+      </div>
+      <div class="text-xs text-slate-400 mt-0.5">15บ. + 2บ./กม./กล่อง</div>
+    </div>
+
+    <!-- Card 6: Net Profit -->
+    <div [class]="p.netProfit >= 0 ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-400/20' : 'bg-red-50 border-red-300'" class="p-4 rounded-2xl border shadow-sm">
+      <div class="text-xs font-bold" [class]="p.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'">
+        {{ p.netProfit >= 0 ? 'กำไรสุทธิรอบนี้' : 'ขาดทุน!' }}
+      </div>
+      <div class="text-2xl font-black mt-1" [class]="p.netProfit >= 0 ? 'text-emerald-700' : 'text-red-700'">
+        ฿{{ p.netProfit | number:'1.2-2' }}
+      </div>
+      <div class="text-xs font-semibold" [class]="p.netProfit >= 0 ? 'text-emerald-600' : 'text-red-600'">
+        Margin: {{ p.profitMarginPercent }}%
+      </div>
+    </div>
+
+    <!-- Card 7: Time Guarantee -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="text-xs font-medium text-slate-500">เวลาส่งนานสุด</div>
+      <div class="text-xl font-black text-indigo-600 mt-1">
+        {{ p.maxTripDurationMinutes }} <span class="text-xs font-normal text-slate-500">นาที</span>
+      </div>
+      <div class="text-xs font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
+        <span>✓ ทัน 12:30 น.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map & Route List Split View (Always in DOM so Map initializes properly) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Map Container (7 cols on lg) -->
+    <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-bold text-slate-800 text-sm">แผนที่เส้นทางจัดส่งแยกตามสีไรเดอร์</span>
+          <span *ngIf="selectedRoute() as sr" class="text-xs font-semibold px-2 py-0.5 rounded-full text-white" [style.background-color]="sr.riderColor">
+            กำลังดู {{ sr.riderName }} ({{ sr.jobCode }})
+          </span>
+        </div>
+        <button 
+          *ngIf="selectedRoute()" 
+          (click)="selectRoute(null)" 
+          class="text-xs text-orange-600 hover:text-orange-700 font-bold underline">
+          ✕ แสดงทุกเส้นทาง
+        </button>
+      </div>
+
+      <!-- Leaflet Map Container -->
+      <div class="relative flex-1" style="min-height: 580px;">
+        <div id="delivery-map" class="h-full w-full"></div>
+      </div>
+
+      <!-- Map Legend -->
+      <div class="p-3 bg-slate-50 border-t border-slate-100 text-xs text-slate-600 flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 rounded-full bg-orange-600 border border-white"></span>
+          <span class="font-medium">🏪 ร้านข้าวกล่อง (จุดเริ่ม 11:30 น.)</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3.5 h-3.5 rounded-full bg-slate-700 text-[10px] text-white flex items-center justify-center font-bold">1</span>
+          <span>ลำดับจุดส่งของแต่ละไรเดอร์</span>
+        </div>
+        <div class="text-slate-400">
+          💡 คลิกที่การ์ดไรเดอร์ทางขวาเพื่อเน้นเส้นทางเฉพาะคัน
+        </div>
+      </div>
+    </div>
+
+    <!-- Rider Assignment & Routes Column (5 cols on lg) -->
+    <div class="lg:col-span-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-black text-slate-800 text-base flex items-center gap-2">
+          🛵 งานของไรเดอร์แต่ละคัน ({{ plan()?.routes?.length || 0 }} คัน)
+        </h2>
+        <span class="text-xs text-slate-500">
+          เงื่อนไข: &le; 3 ออเดอร์/คน
+        </span>
+      </div>
+
+      <!-- Empty State if no plan -->
+      <div *ngIf="!plan() || plan()?.routes?.length === 0" class="bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-3">
+        <div class="text-4xl">🍱</div>
+        <h3 class="font-bold text-slate-800 text-base">ยังไม่ได้คำนวณเส้นทางจัดส่ง</h3>
+        <p class="text-xs text-slate-500 max-w-xs mx-auto">
+          กดปุ่มด้านล่างเพื่อจำลองออเดอร์มื้อเที่ยง 25 รายการรอบ มมส. แล้วระบบจะคำนวณและวาดเส้นทางบนแผนที่ให้อัตโนมัติครับ
+        </p>
+        <button 
+          (click)="simulateLunchRush()"
+          [disabled]="isLoading()"
+          class="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+          🚀 จำลองออเดอร์มื้อเที่ยง (25 รายการ)
+        </button>
+      </div>
+
+      <!-- Rider Routes Cards List -->
+      <div *ngIf="plan() && plan()!.routes.length > 0" class="space-y-3 max-h-[640px] overflow-y-auto pr-1">
+        <div 
+          *ngFor="let route of plan()?.routes"
+          (click)="selectRoute(route)"
+          [class.ring-2]="selectedRoute()?.jobCode === route.jobCode"
+          [style.ring-color]="route.riderColor"
+          class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer">
+          
+          <!-- Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div 
+                class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow shrink-0"
+                [style.background-color]="route.riderColor">
+                {{ route.riderNumber }}
+              </div>
+              <div>
+                <div class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  {{ route.riderName }}
+                  <span class="text-xs font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+                    {{ route.jobCode }}
+                  </span>
+                </div>
+                <div class="text-xs text-slate-500">
+                  โทร {{ route.riderPhone }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Estimated Delivery Time Badge -->
+            <div class="text-right">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">
+                11:30 - {{ route.estimatedCompletionTime }} น.
+              </span>
+              <div class="text-[11px] text-slate-400 mt-0.5">ใช้เวลา ~{{ route.estimatedDurationMinutes }} นาที</div>
+            </div>
+          </div>
+
+          <!-- Trip Stats -->
+          <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100 text-center">
+            <div>
+              <div class="text-[11px] text-slate-400">ออเดอร์</div>
+              <div class="text-sm font-bold text-slate-800">{{ route.orders.length }}/3</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">ข้าวกล่อง</div>
+              <div class="text-sm font-bold text-orange-600">{{ route.totalBoxes }} กล่อง</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">ระยะทาง</div>
+              <div class="text-sm font-bold text-slate-800">{{ route.totalDistanceKm }} กม.</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">ค่าจ้างไรเดอร์</div>
+              <div class="text-sm font-bold text-rose-600">฿{{ route.riderTotalCost | number:'1.1-2' }}</div>
+            </div>
+          </div>
+
+          <!-- Cost Calculation Note (ตามสูตรของเจ้าของร้าน) -->
+          <div class="mt-2 text-[11px] bg-slate-50 p-2 rounded-lg text-slate-600 flex justify-between items-center">
+            <span>ฐาน 15บ. + ({{ route.totalDistanceKm }}กม. × 2บ. × {{ route.totalBoxes }}กล่อง = {{ route.distanceFee }}บ.)</span>
+            <span class="font-bold text-emerald-600">กำไร ฿{{ route.grossProfit | number:'1.1-2' }}</span>
+          </div>
+
+          <!-- Stops Sequence -->
+          <div class="mt-3 space-y-1.5">
+            <div *ngFor="let stop of route.stops" class="flex items-center gap-2 text-xs">
+              <span 
+                class="w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                [style.background-color]="route.riderColor">
+                {{ stop.stopNumber }}
+              </span>
+              <span class="font-semibold text-slate-800 truncate max-w-[140px]">{{ stop.customerName }}</span>
+              <span class="text-slate-400 text-[11px]">({{ stop.boxCount }} กล่อง)</span>
+              <span class="text-slate-400 text-[11px] truncate flex-1">&bull; {{ stop.address }}</span>
+              <a 
+                [href]="stop.googleMapsUrl" 
+                target="_blank" 
+                (click)="$event.stopPropagation()"
+                class="text-blue-600 hover:text-blue-800 shrink-0 font-medium">
+                🗺️ นำทาง
+              </a>
+            </div>
+          </div>
+
+          <!-- Buttons: Focus Map & Open Rider View -->
+          <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+            <button 
+              type="button"
+              (click)="selectRoute(route); $event.stopPropagation()"
+              class="text-xs px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium flex items-center gap-1">
+              <span>🗺️ {{ selectedRoute()?.jobCode === route.jobCode ? 'กำลังดูเส้นนี้' : 'ดูเส้นทางนี้บนแผนที่' }}</span>
+            </button>
+
+            <a 
+              [routerLink]="['/rider']" 
+              [queryParams]="{ job: route.jobCode }"
+              (click)="$event.stopPropagation()"
+              class="text-xs text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+              📱 หน้าจอไรเดอร์ &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
