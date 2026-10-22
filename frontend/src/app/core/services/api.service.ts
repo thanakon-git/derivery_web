@@ -22,7 +22,7 @@ interface ApiResponse<T> {
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'https://derivery-web.onrender.com/api';
 
   // --- Shop & Riders ---
   getShopInfo(): Observable<Shop> {

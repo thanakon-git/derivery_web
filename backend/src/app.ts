@@ -301,7 +301,7 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
-// Mount Routers (ตามสไตล์อาจารย์)
+
 app.use('/api/customers', customerRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api', routeRouter);
