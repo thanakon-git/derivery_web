@@ -22,6 +22,7 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedStrategy = signal<'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY'>('SMART_CLUSTER');
   public isLoading = signal<boolean>(false);
   public orderCount = signal<number>(0);
+  public feedbackMessage = signal<string | null>(null);
 
   private map: L.Map | null = null;
   private routeLayers: L.LayerGroup = L.layerGroup();
@@ -273,18 +274,41 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public optimizeRoutes() {
     this.isLoading.set(true);
+    this.feedbackMessage.set(null);
     this.api.optimizeRoutes(this.selectedStrategy()).subscribe({
       next: (plan) => {
         this.plan.set(plan);
         this.selectedRoute.set(null);
         this.renderRoutesOnMap(plan);
         this.isLoading.set(false);
+        const stratName = this.getStrategyName(plan.optimizationStrategy);
+        this.feedbackMessage.set(`✅ คำนวณและเสนอเส้นทางใหม่สำเร็จ! [${stratName}] ไรเดอร์ ${plan.totalRidersUsed} คัน | กำไรสุทธิ ฿${plan.netProfit.toFixed(2)} | ส่งเสร็จใน ${plan.maxTripDurationMinutes} นาที (ทันก่อน 12:30 น.)`);
       },
       error: (err) => {
         console.error('Error optimizing routes:', err);
         this.isLoading.set(false);
+        this.feedbackMessage.set('❌ เกิดข้อผิดพลาดในการคำนวณเส้นทาง กรุณาลองใหม่อีกครั้ง');
       }
     });
+  }
+
+  public cycleStrategyAndOptimize() {
+    const current = this.selectedStrategy();
+    let next: 'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY' = 'MIN_RIDERS';
+    if (current === 'SMART_CLUSTER') next = 'MIN_RIDERS';
+    else if (current === 'MIN_RIDERS') next = 'FASTEST_DELIVERY';
+    else if (current === 'FASTEST_DELIVERY') next = 'SMART_CLUSTER';
+    
+    this.selectedStrategy.set(next);
+    this.optimizeRoutes();
+  }
+
+  public getStrategyName(strat: string): string {
+    switch (strat) {
+      case 'MIN_RIDERS': return 'อัดแน่น 3 ออเดอร์/คน (ประหยัดไรเดอร์ กำไรสูงสุด)';
+      case 'FASTEST_DELIVERY': return 'กระจายงานเร็วสุด (ส่งถึงลูกค้าไวที่สุด)';
+      default: return 'แบ่งโซนตามมุมและระยะทาง (สมดุลที่สุด)';
+    }
   }
 
   public clearAll() {

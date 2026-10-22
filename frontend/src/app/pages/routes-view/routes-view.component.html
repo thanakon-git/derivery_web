@@ -1,32 +1,42 @@
-<div class="space-y-6">
-  <!-- Top Control Bar -->
-  <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<div class="space-y-4">
+  <!-- Feedback Banner / Windows 95 Message Box -->
+  <div *ngIf="feedbackMessage()" class="win95-window p-3 bg-[#ffffdd] border-2 border-[#808080] shadow-[inset_1px_1px_#ffffff,inset_-1px_-1px_#0a0a0a] flex items-center justify-between">
+    <div class="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#000080]">
+      <span class="text-xl">ℹ️</span>
+      <span>{{ feedbackMessage() }}</span>
+    </div>
+    <button (click)="feedbackMessage.set(null)" class="win95-title-btn" title="ปิด">✕</button>
+  </div>
+
+  <!-- Top Control Bar (Windows 95 Groupbox) -->
+  <div class="win95-window p-3 sm:p-4 shadow-sm">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
-            ⏰ รอบส่งด่วนมื้อเที่ยง
+          <span class="px-2 py-0.5 bg-[#000080] text-white text-xs font-bold shadow-[inset_-1px_-1px_#ffffff,inset_1px_1px_#000000]">
+            ⏰ กฎเหล็ก: ส่งด่วนมื้อเที่ยง 1 ชม.
           </span>
-          <span class="text-xs text-slate-500">
-            ออกส่ง 11:30 น. &bull; ต้องถึงก่อน 12:30 น. (กฎ 1 ชม.)
+          <span class="text-xs font-bold text-black">
+            ออกส่ง 11:30 น. &bull; ต้องถึงก่อน 12:30 น. (ระยะ &le; 3 กม.)
           </span>
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 mt-1 flex items-center gap-2">
-          <span>🗺️ จัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ</span>
+        <h1 class="text-lg sm:text-xl font-bold text-black mt-1 flex items-center gap-2">
+          <span>🗺️ จัดเส้นทางและแบ่งงานไรเดอร์อัจฉริยะ (VRP Optimization)</span>
         </h1>
-        <p class="text-xs text-slate-500 mt-0.5">
-          ระบบจัดกลุ่มพิกัดรอบ ม.มหาสารคาม (มมส.) ไม่ให้วิ่งไขว้ฝั่งเมือง พร้อมคำนวณต้นทุน-กำไรอัตโนมัติ
+        <p class="text-xs text-[#333333] mt-0.5">
+          ระบบจัดกลุ่มพิกัดรอบ มมส. ขามเรียง ป้องกันการวิ่งข้ามฝั่งเมือง คำนวณค่าน้ำมันและกำไรสุทธิแบบเรียลไทม์
         </p>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-wrap items-center gap-2.5">
+      <div class="flex flex-wrap items-center gap-2">
         <select 
           [(ngModel)]="selectedStrategy" 
           (change)="optimizeRoutes()"
           [disabled]="isLoading() || orderCount() === 0"
-          class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-orange-500 outline-none">
-          <option value="SMART_CLUSTER">🌟 แบ่งโซนตามมุมและระยะทาง (แนะนำ)</option>
+          class="text-xs font-bold px-2 py-1.5 outline-none"
+          title="เลือกอัลกอริทึมจัดเส้นทาง">
+          <option value="SMART_CLUSTER">🌟 แบ่งโซนตามมุมและระยะทาง (สมดุล)</option>
           <option value="MIN_RIDERS">💰 อัดเต็ม 3 ออเดอร์/คัน (ประหยัดไรเดอร์)</option>
           <option value="FASTEST_DELIVERY">⚡ กระจายงานเร็วสุด (ส่งถึงไวที่สุด)</option>
         </select>
@@ -34,27 +44,34 @@
         <button 
           (click)="optimizeRoutes()"
           [disabled]="isLoading() || orderCount() === 0"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white text-sm font-semibold rounded-xl shadow-sm transition disabled:opacity-50">
-          <svg *ngIf="isLoading()" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+          class="win95-button px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5"
+          title="คำนวณเส้นทางใหม่ทันที">
           <span *ngIf="!isLoading()">⚡ คำนวณเส้นทางใหม่</span>
-          <span *ngIf="isLoading()">กำลังคิดเส้นทาง...</span>
+          <span *ngIf="isLoading()">⏳ กำลังคำนวณ...</span>
+        </button>
+
+        <button 
+          (click)="cycleStrategyAndOptimize()"
+          [disabled]="isLoading() || orderCount() === 0"
+          class="win95-button px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5"
+          title="คำนวณและสลับแผนเส้นทางอื่นให้เจ้าของร้านเปรียบเทียบกำไรและเวลา">
+          <span>🔄 เสนอทางเลือกอื่น</span>
         </button>
 
         <button 
           (click)="simulateLunchRush()"
           [disabled]="isLoading()"
-          class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-sm font-semibold rounded-xl transition">
-          🍱 จำลองออเดอร์มื้อเที่ยง (25 รายการ)
+          class="win95-button px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5"
+          title="สุ่มรายการสั่งซื้อข้าวกล่อง 20-30 รายการ">
+          <span>🍱 จำลองออเดอร์มื้อเที่ยง (25 รายการ)</span>
         </button>
 
         <button 
           (click)="clearAll()"
           [disabled]="isLoading() || orderCount() === 0"
-          class="inline-flex items-center gap-1 px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 text-sm font-medium rounded-xl transition">
-          🗑️ ล้าง
+          class="win95-button px-2.5 py-1.5 text-xs font-bold text-red-700"
+          title="ล้างข้อมูลออเดอร์และเส้นทาง">
+          <span>🗑️ ล้าง</span>
         </button>
       </div>
     </div>

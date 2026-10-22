@@ -1,41 +1,34 @@
 import { Injectable, signal } from '@angular/core';
 
-export type AppTheme = 'retro' | 'modern';
+export type AppTheme = 'retro';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly STORAGE_KEY = 'lunchbox_delivery_theme';
-  public currentTheme = signal<AppTheme>('retro'); // Default is Windows 95 Retro!
+  public currentTheme = signal<AppTheme>('retro'); // Locked to Windows 95 Retro!
 
   constructor() {
     this.initTheme();
   }
 
   private initTheme() {
-    const saved = localStorage.getItem(this.STORAGE_KEY) as AppTheme | null;
-    const initial = saved === 'modern' ? 'modern' : 'retro'; // default retro
-    this.setTheme(initial);
+    if (typeof document !== 'undefined') {
+      document.body.classList.add('theme-retro');
+      document.body.classList.remove('theme-modern');
+    }
   }
 
-  public setTheme(theme: AppTheme) {
-    this.currentTheme.set(theme);
-    localStorage.setItem(this.STORAGE_KEY, theme);
-
+  public setTheme(theme: AppTheme = 'retro') {
+    this.currentTheme.set('retro');
     if (typeof document !== 'undefined') {
-      if (theme === 'retro') {
-        document.body.classList.add('theme-retro');
-        document.body.classList.remove('theme-modern');
-      } else {
-        document.body.classList.add('theme-modern');
-        document.body.classList.remove('theme-retro');
-      }
+      document.body.classList.add('theme-retro');
+      document.body.classList.remove('theme-modern');
     }
   }
 
   public toggleTheme() {
-    const next = this.currentTheme() === 'retro' ? 'modern' : 'retro';
-    this.setTheme(next);
+    // Permanent Windows 95 theme
+    this.setTheme('retro');
   }
 }
