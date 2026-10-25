@@ -18,10 +18,14 @@ export class OrdersViewComponent implements OnInit {
   public customers = signal<Customer[]>([]);
   public isLoading = signal<boolean>(false);
   public isAdding = signal<boolean>(false);
+  public editingOrder = signal<Order | null>(null);
 
   // New order form
   public selectedCustomerId = '';
   public newBoxCount = 1;
+
+  // Edit order box count form
+  public editBoxCount = 1;
 
   ngOnInit() {
     this.loadData();
@@ -94,6 +98,33 @@ export class OrdersViewComponent implements OnInit {
         }
       });
     }
+  }
+
+  public openEditModal(order: Order) {
+    this.editingOrder.set(order);
+    this.editBoxCount = order.boxCount;
+  }
+
+  public closeEditModal() {
+    this.editingOrder.set(null);
+  }
+
+  public saveBoxCount() {
+    const order = this.editingOrder();
+    if (!order) return;
+    this.isLoading.set(true);
+    const updatedCount = Number(this.editBoxCount);
+    this.api.updateOrderBoxCount(order.id, updatedCount).subscribe({
+      next: () => {
+        this.orders.update(list => list.map(o => o.id === order.id ? { ...o, boxCount: updatedCount } : o));
+        this.closeEditModal();
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        alert('เกิดข้อผิดพลาดในการแก้ไข: ' + (err.error?.message || 'ไม่สามารถอัปเดตได้'));
+        this.isLoading.set(false);
+      }
+    });
   }
 
   public getTotalBoxes(): number {

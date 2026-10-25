@@ -75,6 +75,12 @@ export class ApiService {
     );
   }
 
+  updateOrderBoxCount(id: string, boxCount: number): Observable<Order> {
+    return this.http.put<ApiResponse<Order>>(`${this.baseUrl}/orders/${id}`, { boxCount }).pipe(
+      map(res => res.data)
+    );
+  }
+
   deleteOrder(id: string): Observable<boolean> {
     return this.http.delete<ApiResponse<null>>(`${this.baseUrl}/orders/${id}`).pipe(
       map(res => res.success)
