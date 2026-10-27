@@ -42,20 +42,12 @@
         </select>
 
         <button 
-          (click)="optimizeRoutes()"
-          [disabled]="isLoading() || orderCount() === 0"
-          class="win95-button px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5"
-          title="คำนวณเส้นทางใหม่ทันที">
-          <span *ngIf="!isLoading()">⚡ คำนวณเส้นทางใหม่</span>
-          <span *ngIf="isLoading()">⏳ กำลังคำนวณ...</span>
-        </button>
-
-        <button 
           (click)="cycleStrategyAndOptimize()"
           [disabled]="isLoading() || orderCount() === 0"
           class="win95-button px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1.5"
-          title="คำนวณและสลับแผนเส้นทางอื่นให้เจ้าของร้านเปรียบเทียบกำไรและเวลา">
-          <span>🔄 เสนอทางเลือกอื่น</span>
+          title="คำนวณและเสนอแผนเส้นทางใหม่เพื่อเปรียบเทียบกำไรและเวลา">
+          <span *ngIf="!isLoading()">⚡ คำนวณเส้นทางใหม่</span>
+          <span *ngIf="isLoading()">⏳ กำลังคำนวณ...</span>
         </button>
 
         <button 

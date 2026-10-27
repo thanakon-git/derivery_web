@@ -303,13 +303,15 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public cycleStrategyAndOptimize() {
-    const current = this.selectedStrategy;
-    let next: 'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY' = 'MIN_RIDERS';
-    if (current === 'SMART_CLUSTER') next = 'MIN_RIDERS';
-    else if (current === 'MIN_RIDERS') next = 'FASTEST_DELIVERY';
-    else if (current === 'FASTEST_DELIVERY') next = 'SMART_CLUSTER';
-    
-    this.selectedStrategy = next;
+    if (this.plan()) {
+      const current = this.selectedStrategy;
+      let next: 'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY' = 'MIN_RIDERS';
+      if (current === 'SMART_CLUSTER') next = 'MIN_RIDERS';
+      else if (current === 'MIN_RIDERS') next = 'FASTEST_DELIVERY';
+      else if (current === 'FASTEST_DELIVERY') next = 'SMART_CLUSTER';
+      
+      this.selectedStrategy = next;
+    }
     this.optimizeRoutes();
   }
 
