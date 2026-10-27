@@ -1,4 +1,4 @@
-﻿import mysql, { Pool } from 'mysql2/promise';
+import mysql, { Pool } from 'mysql2/promise';
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -38,6 +38,7 @@ if (dbUri) {
   } catch (parseErr) {
     // URL parsing failed - fall back to raw URI string
     console.warn('[DB] Could not parse MYSQL_URL, using raw URI:', (parseErr as Error).message);
+    pool = mysql.createPool({
       uri: dbUri,
       ssl: useSSL ? { rejectUnauthorized: false } : undefined,
       waitForConnections: true,
