@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+��import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -132,6 +132,6 @@ export class OrdersViewComponent implements OnInit {
   }
 
   public getTotalRevenue(): number {
-    return this.getTotalBoxes() * 65;
+    return this.orders().reduce((sum, o) => sum + o.boxCount * o.pricePerBox, 0);
   }
-}
+}

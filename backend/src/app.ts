@@ -8,7 +8,9 @@ import { CONFIG } from './config';
 const app: Application = express();
 
 // Middlewares
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN || '*'
+}));
 app.use(express.json());
 
 // Root Route - Interactive Landing Page & API Explorer
