@@ -1,4 +1,4 @@
-<div class="min-h-screen flex flex-col font-sans pb-10 select-none">
+﻿<div class="min-h-screen flex flex-col font-sans pb-10 select-none">
   <!-- Desktop App Container -->
   <div class="p-2 sm:p-4 max-w-[1400px] w-full mx-auto flex-1 flex flex-col">
     
@@ -12,20 +12,20 @@
           <span class="font-bold text-xs sm:text-sm">DeliveryOS 95 - [ร้านข้าวกล่องเดลิเวอรี ส่งด่วนมื้อเที่ยง (ม.มหาสารคาม ขามเรียง)]</span>
         </div>
         <div class="win95-title-controls flex items-center gap-1">
-          <button class="win95-title-btn" title="Minimize">_</button>
-          <button class="win95-title-btn" title="Maximize">□</button>
-          <button class="win95-title-btn" title="Close">✕</button>
+          <button class="win95-title-btn cursor-not-allowed opacity-70" title="Minimize (ไม่รองรับ)" aria-hidden="true" tabindex="-1">_</button>
+          <button class="win95-title-btn cursor-not-allowed opacity-70" title="Maximize (ไม่รองรับ)" aria-hidden="true" tabindex="-1">□</button>
+          <button class="win95-title-btn cursor-not-allowed opacity-70" title="Close (ไม่รองรับ)" aria-hidden="true" tabindex="-1">✕</button>
         </div>
       </div>
 
       <!-- Menu Bar -->
       <div class="win95-menubar">
-        <span class="win95-menu-btn"><u>F</u>ile</span>
+        <span class="win95-menu-btn cursor-not-allowed opacity-70" title="File (ไม่รองรับ)" aria-hidden="true" tabindex="-1"><u>F</u>ile</span>
         <span class="win95-menu-btn" routerLink="/orders"><u>O</u>rders</span>
         <span class="win95-menu-btn" routerLink="/customers"><u>C</u>ustomers</span>
         <span class="win95-menu-btn" routerLink="/"><u>R</u>outes</span>
         <span class="win95-menu-btn" routerLink="/rider">Ri<u>d</u>ers</span>
-        <span class="win95-menu-btn"><u>H</u>elp</span>
+        <span class="win95-menu-btn cursor-not-allowed opacity-70" title="Help (ไม่รองรับ)" aria-hidden="true" tabindex="-1"><u>H</u>elp</span>
       </div>
 
       <!-- Windows 95 Property Tabs Bar -->
@@ -138,8 +138,8 @@
 
     <!-- System Tray -->
     <div class="win95-tray">
-      <span title="Volume">🔊</span>
-      <span title="Connected">🌐</span>
+      <span class="cursor-not-allowed" title="Volume (ไม่รองรับ)" aria-hidden="true" tabindex="-1">🔊</span>
+      <span class="cursor-not-allowed" title="Connected" aria-hidden="true">🌐</span>
       <span class="font-bold">{{ currentTime() }}</span>
     </div>
   </footer>

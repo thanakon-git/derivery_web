@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { DeliveryStop, RiderRoute, Shop } from '../../core/models/delivery.models';
+import { RiderRoute, Shop } from '../../core/models/delivery.models';
 
 @Component({
   selector: 'app-rider-view',

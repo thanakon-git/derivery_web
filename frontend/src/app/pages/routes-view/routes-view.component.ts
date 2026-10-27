@@ -6,6 +6,16 @@ import * as L from 'leaflet';
 import { ApiService } from '../../core/services/api.service';
 import { DeliveryPlan, RiderRoute, Shop } from '../../core/models/delivery.models';
 
+/** แปลงนาทีนับจากเวลาออกส่ง 11:30 → "HH:MM น." รองรับเกิน 60 นาที */
+function formatArrivalTime(minutesFromDeparture: number): string {
+  const DEPARTURE_HOUR = 11;
+  const DEPARTURE_MINUTE = 30;
+  const totalMinutes = DEPARTURE_HOUR * 60 + DEPARTURE_MINUTE + minutesFromDeparture;
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${h}:${m.toString().padStart(2, '0')} น.`;
+}
+
 @Component({
   selector: 'app-routes-view',
   standalone: true,
@@ -151,7 +161,7 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
     marker.addTo(this.map);
   }
 
-  public renderRoutesOnMap(plan: DeliveryPlan) {
+  private renderRoutesOnMap(plan: DeliveryPlan) {
     if (!this.map) {
       this.initMap();
     }
@@ -226,7 +236,7 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
             <div class="grid grid-cols-2 gap-2 text-xs bg-slate-100 p-2 rounded mb-2">
               <div>จำนวน: <strong class="text-orange-600">${stop.boxCount} กล่อง</strong></div>
               <div>ระยะ: <strong>${stop.distanceFromPrevKm} กม.</strong></div>
-              <div class="col-span-2">คาดถึงเวลา: <strong>11:${(30 + stop.estimatedArrivalMinutesFromStart).toString().padStart(2, '0')} น.</strong></div>
+              <div class="col-span-2">คาดถึงเวลา: <strong>${formatArrivalTime(stop.estimatedArrivalMinutesFromStart)}</strong></div>
             </div>
             <a href="${stop.googleMapsUrl}" target="_blank" class="block text-center py-1.5 px-3 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700">
               🗺️ เปิด Google Maps นำทาง
