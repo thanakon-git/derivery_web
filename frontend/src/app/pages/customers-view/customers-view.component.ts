@@ -194,6 +194,9 @@ export class CustomersViewComponent implements OnInit, AfterViewInit, OnDestroy 
         next: () => {
           this.isModalOpen.set(false);
           this.loadData();
+        },
+        error: (err) => {
+          alert('เกิดข้อผิดพลาดในการแก้ไข: ' + (err.error?.message || 'ไม่สามารถอัปเดตได้'));
         }
       });
     } else {
@@ -201,6 +204,9 @@ export class CustomersViewComponent implements OnInit, AfterViewInit, OnDestroy 
         next: () => {
           this.isModalOpen.set(false);
           this.loadData();
+        },
+        error: (err) => {
+          alert('เกิดข้อผิดพลาดในการเพิ่มลูกค้า: ' + (err.error?.message || 'ไม่สามารถบันทึกได้'));
         }
       });
     }
@@ -209,7 +215,10 @@ export class CustomersViewComponent implements OnInit, AfterViewInit, OnDestroy 
   public deleteCustomer(id: string) {
     if (confirm('ยืนยันลบข้อมูลลูกค้านี้?')) {
       this.api.deleteCustomer(id).subscribe({
-        next: () => this.loadData()
+        next: () => this.loadData(),
+        error: (err) => {
+          alert('เกิดข้อผิดพลาดในการลบลูกค้า: ' + (err.error?.message || 'ไม่สามารถลบได้'));
+        }
       });
     }
   }
