@@ -178,7 +178,7 @@
             <span class="font-medium text-slate-800">{{ stop.address }}</span>
           </div>
           <div class="flex items-center justify-between pt-1 text-[11px] text-slate-500">
-            <div>⏰ คาดการณ์เวลาถึง: <strong>11:{{ (30 + stop.estimatedArrivalMinutesFromStart).toString().padStart(2, '0') }} น.</strong></div>
+            <div>⏰ คาดการณ์เวลาถึง: <strong>{{ formatArrivalTime(stop.estimatedArrivalMinutesFromStart) }}</strong></div>
             <a [href]="'tel:' + stop.customerPhone" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
               📞 โทร {{ stop.customerPhone }}
             </a>

@@ -29,7 +29,7 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
   public shop = signal<Shop | null>(null);
   public plan = signal<DeliveryPlan | null>(null);
   public selectedRoute = signal<RiderRoute | null>(null);
-  public selectedStrategy = signal<'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY'>('SMART_CLUSTER');
+  public selectedStrategy: 'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY' = 'SMART_CLUSTER';
   public isLoading = signal<boolean>(false);
   public orderCount = signal<number>(0);
   public feedbackMessage = signal<string | null>(null);
@@ -285,7 +285,7 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
   public optimizeRoutes() {
     this.isLoading.set(true);
     this.feedbackMessage.set(null);
-    this.api.optimizeRoutes(this.selectedStrategy()).subscribe({
+    this.api.optimizeRoutes(this.selectedStrategy).subscribe({
       next: (plan) => {
         this.plan.set(plan);
         this.selectedRoute.set(null);
@@ -303,13 +303,13 @@ export class RoutesViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public cycleStrategyAndOptimize() {
-    const current = this.selectedStrategy();
+    const current = this.selectedStrategy;
     let next: 'SMART_CLUSTER' | 'MIN_RIDERS' | 'FASTEST_DELIVERY' = 'MIN_RIDERS';
     if (current === 'SMART_CLUSTER') next = 'MIN_RIDERS';
     else if (current === 'MIN_RIDERS') next = 'FASTEST_DELIVERY';
     else if (current === 'FASTEST_DELIVERY') next = 'SMART_CLUSTER';
     
-    this.selectedStrategy.set(next);
+    this.selectedStrategy = next;
     this.optimizeRoutes();
   }
 
