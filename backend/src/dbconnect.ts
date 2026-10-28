@@ -35,7 +35,9 @@ if (dbUri) {
       connectionLimit: 10,
       queueLimit: 0
     });
-  } catch {
+  } catch (parseErr) {
+    // URL parsing failed - fall back to raw URI string
+    console.warn('[DB] Could not parse MYSQL_URL, using raw URI:', (parseErr as Error).message);
     pool = mysql.createPool({
       uri: dbUri,
       ssl: useSSL ? { rejectUnauthorized: false } : undefined,
@@ -80,7 +82,7 @@ export async function initDatabase(): Promise<boolean> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'customers':", (e as Error).message); }
 
     // 2. Create riders table (if not already view or table)
     try {
@@ -93,7 +95,7 @@ export async function initDatabase(): Promise<boolean> {
           color VARCHAR(20) NOT NULL
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'riders':", (e as Error).message); }
 
     // 3. Create orders table
     try {
@@ -109,7 +111,7 @@ export async function initDatabase(): Promise<boolean> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'orders':", (e as Error).message); }
 
     // 4. Create delivery_plans table
     try {
@@ -134,7 +136,7 @@ export async function initDatabase(): Promise<boolean> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'delivery_plans':", (e as Error).message); }
 
     // 5. Create delivery_jobs table (if not exists)
     try {
@@ -153,7 +155,7 @@ export async function initDatabase(): Promise<boolean> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'delivery_jobs':", (e as Error).message); }
 
     // 6. Create delivery_routes table (if not exists)
     try {
@@ -169,9 +171,9 @@ export async function initDatabase(): Promise<boolean> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `);
-    } catch {}
+    } catch (e) { console.warn("[DB Init] Could not create table 'delivery_routes':", (e as Error).message); }
 
-    // 5. Seed customers if empty
+    // 7. Seed customers if empty
     const [custRows]: any = await conn.query('SELECT COUNT(*) as count FROM customers');
     if (custRows[0].count === 0) {
       console.log('🌱 Seeding 30 initial customers around MSU...');
@@ -185,7 +187,7 @@ export async function initDatabase(): Promise<boolean> {
       console.log('✅ 30 Customers seeded successfully!');
     }
 
-    // 6. Seed riders if empty
+    // 8. Seed riders if empty
     const [riderRows]: any = await conn.query('SELECT COUNT(*) as count FROM riders');
     if (riderRows[0].count === 0) {
       console.log('🌱 Seeding 15 initial riders with color palette...');

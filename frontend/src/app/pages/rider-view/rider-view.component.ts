@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
-import { DeliveryStop, RiderRoute, Shop } from '../../core/models/delivery.models';
+import { RiderRoute, Shop } from '../../core/models/delivery.models';
 
 @Component({
   selector: 'app-rider-view',
@@ -16,7 +16,7 @@ export class RiderViewComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
 
-  public jobCodeInput = signal<string>('JOB-01');
+  public jobCodeInput: string = 'JOB-01';
   public currentJobCode = signal<string>('');
   public shop = signal<Shop | null>(null);
   public routeData = signal<RiderRoute | null>(null);
@@ -30,7 +30,7 @@ export class RiderViewComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params['job']) {
-        this.jobCodeInput.set(params['job']);
+        this.jobCodeInput = params['job'];
         this.searchJob(params['job']);
       } else {
         this.searchJob('JOB-01');
@@ -39,7 +39,7 @@ export class RiderViewComponent implements OnInit {
   }
 
   public searchJob(code?: string) {
-    const jobToFind = (code || this.jobCodeInput()).trim().toUpperCase();
+    const jobToFind = (code || this.jobCodeInput).trim().toUpperCase();
     if (!jobToFind) return;
 
     this.isLoading.set(true);
@@ -65,7 +65,7 @@ export class RiderViewComponent implements OnInit {
   }
 
   public selectQuickJob(code: string) {
-    this.jobCodeInput.set(code);
+    this.jobCodeInput = code;
     this.searchJob(code);
   }
 
@@ -96,6 +96,13 @@ export class RiderViewComponent implements OnInit {
       this.completedStops.set(allStops);
     }
     this.updateStatusOnBackend('DELIVERED');
+  }
+
+  public formatArrivalTime(minutesFromDeparture: number): string {
+    const totalMinutes = 11 * 60 + 30 + minutesFromDeparture;
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h}:${m.toString().padStart(2, '0')} น.`;
   }
 
   private updateStatusOnBackend(status: 'DELIVERING' | 'DELIVERED') {

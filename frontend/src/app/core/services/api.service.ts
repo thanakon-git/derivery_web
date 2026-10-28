@@ -22,7 +22,7 @@ interface ApiResponse<T> {
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'https://derivery-web.onrender.com/api';
 
   // --- Shop & Riders ---
   getShopInfo(): Observable<Shop> {
@@ -71,6 +71,12 @@ export class ApiService {
 
   addOrder(customerId: string, boxCount: number): Observable<Order> {
     return this.http.post<ApiResponse<Order>>(`${this.baseUrl}/orders`, { customerId, boxCount }).pipe(
+      map(res => res.data)
+    );
+  }
+
+  updateOrderBoxCount(id: string, boxCount: number): Observable<Order> {
+    return this.http.put<ApiResponse<Order>>(`${this.baseUrl}/orders/${id}`, { boxCount }).pipe(
       map(res => res.data)
     );
   }

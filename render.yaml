@@ -12,3 +12,14 @@ services:
         value: "true"
       - key: MYSQL_URL
         sync: false # Set this in Render dashboard with your Aiven MySQL URL
+
+  - type: web
+    name: lunchbox-delivery-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/frontend/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

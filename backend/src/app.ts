@@ -8,7 +8,9 @@ import { CONFIG } from './config';
 const app: Application = express();
 
 // Middlewares
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN || '*'
+}));
 app.use(express.json());
 
 // Root Route - Interactive Landing Page & API Explorer
@@ -301,7 +303,7 @@ app.get('/api/health', (req: Request, res: Response) => {
   });
 });
 
-// Mount Routers (ตามสไตล์อาจารย์)
+
 app.use('/api/customers', customerRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api', routeRouter);

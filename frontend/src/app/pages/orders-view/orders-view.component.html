@@ -154,11 +154,19 @@
               </span>
             </td>
             <td class="p-4 text-center">
-              <button 
-                (click)="deleteOrder(order.id)"
-                class="text-xs text-red-500 hover:text-red-700 hover:underline">
-                ลบ
-              </button>
+              <div class="flex items-center justify-center gap-2">
+                <button 
+                  (click)="openEditModal(order)"
+                  class="text-xs text-blue-600 hover:text-blue-800 font-bold hover:underline">
+                  แก้ไข
+                </button>
+                <span class="text-slate-300">|</span>
+                <button 
+                  (click)="deleteOrder(order.id)"
+                  class="text-xs text-red-500 hover:text-red-700 font-bold hover:underline">
+                  ลบ
+                </button>
+              </div>
             </td>
           </tr>
 
@@ -169,6 +177,61 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Edit Box Count Modal (Windows 95 Dialog) -->
+  <div *ngIf="editingOrder() as editOrd" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div class="win95-window w-full max-w-sm shadow-2xl">
+      <!-- Title Bar -->
+      <div class="win95-titlebar flex items-center justify-between">
+        <div class="flex items-center gap-1.5 truncate">
+          <span>🍱</span>
+          <span class="text-xs font-bold">แก้ไขจำนวนกล่องข้าว - [{{ editOrd.orderNumber }}]</span>
+        </div>
+        <button (click)="closeEditModal()" class="win95-title-btn" title="ปิด">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 space-y-3.5 text-xs text-black">
+        <div class="bg-white p-2.5 shadow-[inset_1px_1px_#808080,inset_-1px_-1px_#ffffff] space-y-1">
+          <div class="font-bold text-sm text-slate-900">{{ editOrd.customerName }}</div>
+          <div class="text-slate-500">📞 {{ editOrd.customerPhone }}</div>
+          <div class="text-slate-600 text-[11px] truncate">{{ editOrd.address }}</div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-black mb-1">
+            จำนวนข้าวกล่อง (1 - 3 กล่อง ตามเงื่อนไขร้าน):
+          </label>
+          <select 
+            [(ngModel)]="editBoxCount" 
+            class="w-full bg-white text-black p-2 border text-xs font-bold shadow-[inset_1px_1px_#808080,inset_-1px_-1px_#ffffff]">
+            <option [value]="1">🍱 1 กล่อง (฿65)</option>
+            <option [value]="2">🍱 2 กล่อง (฿130)</option>
+            <option [value]="3">🍱 3 กล่อง (฿195)</option>
+          </select>
+        </div>
+
+        <div class="text-[11px] text-slate-600 bg-[#ffffdd] p-2 border border-[#808080]">
+          💡 ยอดเงินคำนวณใหม่: <b>฿{{ editBoxCount * 65 }}</b> (กล่องละ 65 บาท)
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-2 pt-2 border-t border-[#808080]">
+          <button 
+            (click)="saveBoxCount()" 
+            [disabled]="isLoading()"
+            class="win95-button flex-1 py-1.5 text-xs font-bold">
+            💾 บันทึกการแก้ไข
+          </button>
+          <button 
+            (click)="closeEditModal()" 
+            class="win95-button flex-1 py-1.5 text-xs font-bold">
+            ยกเลิก
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

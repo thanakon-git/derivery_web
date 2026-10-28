@@ -170,8 +170,9 @@ routeRouter.post('/routes/optimize', async (req: Request, res: Response) => {
       const assignedIds = new Set<string>();
       plan.routes.forEach(r => r.orders.forEach(o => assignedIds.add(o.id)));
       if (assignedIds.size > 0) {
-        const idList = Array.from(assignedIds).map(id => `'${id}'`).join(',');
-        await pool.query(`UPDATE orders SET status = 'ASSIGNED' WHERE id IN (${idList})`);
+        const idList = Array.from(assignedIds);
+        const placeholders = idList.map(() => '?').join(',');
+        await pool.query(`UPDATE orders SET status = 'ASSIGNED' WHERE id IN (${placeholders})`, idList);
       }
     } catch (dbErr: any) {
       console.warn('⚠️ [MySQL] Note on saving plan details:', dbErr.message);
@@ -265,11 +266,11 @@ routeRouter.post('/rider/job/:jobCode/status', async (req: Request, res: Respons
         const plan: DeliveryPlan = JSON.parse(rows[0].plan_json);
         const route = plan.routes.find(r => r.jobCode.toUpperCase() === jobCode.toUpperCase());
         if (route) {
-          const idList = route.orders.map(o => `'${o.id}'`).join(',');
-          if (idList) {
-            await pool.query(`UPDATE orders SET status = ? WHERE id IN (${idList})`, [status]);
+          const orderIds = route.orders.map(o => o.id);
+          const statusPlaceholders = orderIds.map(() => '?').join(',');
+          if (orderIds.length > 0) {
+            await pool.query(`UPDATE orders SET status = ? WHERE id IN (${statusPlaceholders})`, [status, ...orderIds]);
           }
-          await pool.query('UPDATE delivery_jobs SET status = ? WHERE UPPER(job_code) = UPPER(?)', [status, jobCode]);
         }
       }
     } catch (dbErr) {
